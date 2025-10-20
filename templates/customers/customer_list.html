@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Customers{% endblock %}
+{% block content %}
+<h1>Customers</h1>
+<a href="{% url 'customers:create' %}">Create customer</a>
+<ul>
+    {% for customer in customers %}
+        <li><a href="{% url 'customers:detail' customer.pk %}">{{ customer.full_name }}</a></li>
+    {% empty %}
+        <li>No customers found.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

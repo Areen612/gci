@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Invoice Detail{% endblock %}
+{% block content %}
+<h1>Invoice {{ invoice.invoice_number }}</h1>
+<p>Status: {{ invoice.get_status_display }}</p>
+<p>Total: {{ invoice.total_amount }}</p>
+<table>
+    <thead>
+        <tr>
+            <th>Description</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Discount</th>
+            <th>Tax</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for line in invoice.lines.all %}
+        <tr>
+            <td>{{ line.description }}</td>
+            <td>{{ line.quantity }}</td>
+            <td>{{ line.unit_price }}</td>
+            <td>{{ line.discount_amount }}</td>
+            <td>{{ line.tax_amount }}</td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="5">No line items</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

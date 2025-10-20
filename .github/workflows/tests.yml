@@ -1,0 +1,42 @@
+name: Django Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - work
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: gci
+          POSTGRES_USER: gci
+          POSTGRES_PASSWORD: gci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U gci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://gci:gci@127.0.0.1:5432/gci
+      DJANGO_DEBUG: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Apply migrations
+        run: python manage.py migrate --noinput
+      - name: Run pytest
+        run: pytest
