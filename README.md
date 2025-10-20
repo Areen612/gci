@@ -34,3 +34,7 @@ This repository captures foundational design artifacts for the GCI invoicing exp
 The inventory module is available at `/inventory/` and provides search, filtering, CRUD actions, and stock adjustment workflows. The Django admin includes low-stock filters, inline adjustment history, and bulk activation controls.
 
 Use these artifacts to guide future high-fidelity design and development work.
+
+## Database provisioning
+
+See [docs/database-setup.md](docs/database-setup.md) for instructions on provisioning PostgreSQL instances and managing credentials for development, staging, and production environments.
