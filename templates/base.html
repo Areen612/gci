@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}GCI{% endblock %}</title>
+</head>
+<body>
+<nav>
+    <a href="{% url 'customers:list' %}">Customers</a>
+    <a href="{% url 'invoices:create' %}">Create Invoice</a>
+</nav>
+<main>
+    {% if messages %}
+        <ul class="messages">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>
