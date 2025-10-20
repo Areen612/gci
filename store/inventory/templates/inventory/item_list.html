@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Inventory Items{% endblock %}
+{% block content %}
+<h2>Inventory Items</h2>
+<form method="get">
+    <input type="search" name="q" placeholder="Search by SKU, name, or category" value="{{ query }}">
+    <select name="status">
+        <option value="">All statuses</option>
+        <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+        <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Inactive</option>
+    </select>
+    <select name="stock">
+        <option value="">All stock levels</option>
+        <option value="low" {% if stock_filter == 'low' %}selected{% endif %}>Low stock</option>
+    </select>
+    <button type="submit">Search</button>
+</form>
+<table>
+    <thead>
+        <tr>
+            <th>SKU</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Stock on hand</th>
+            <th>Reorder level</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+            <tr>
+                <td>{{ item.sku }}</td>
+                <td><a href="{% url 'inventory:item-detail' item.pk %}">{{ item.name }}</a></td>
+                <td>{{ item.category }}</td>
+                <td>{% if item.is_low_stock %}<strong>{{ item.stock_on_hand }}</strong>{% else %}{{ item.stock_on_hand }}{% endif %}</td>
+                <td>{{ item.reorder_level }}</td>
+                <td>{{ item.is_active|yesno:'Active,Inactive' }}</td>
+                <td>
+                    <a href="{% url 'inventory:item-update' item.pk %}">Edit</a> |
+                    <a href="{% url 'inventory:adjustment-create' item.pk %}">Adjust stock</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="7">No items found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if is_paginated %}
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+    <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Next</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

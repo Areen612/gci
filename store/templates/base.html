@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Inventory{% endblock %}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        header { margin-bottom: 2rem; }
+        nav a { margin-right: 1rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { border: 1px solid #ddd; padding: 0.5rem; }
+        th { background: #f7f7f7; text-align: left; }
+        .actions { margin-top: 1rem; }
+        .message { padding: 0.5rem 1rem; background: #e8f5e9; border: 1px solid #c8e6c9; margin-bottom: 1rem; }
+        .errorlist { color: #b71c1c; }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Inventory Management</h1>
+    <nav>
+        <a href="{% url 'inventory:item-list' %}">Items</a>
+        <a href="{% url 'inventory:item-create' %}">Add Item</a>
+    </nav>
+</header>
+{% if messages %}
+    {% for message in messages %}
+        <div class="message">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+<main>
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>
