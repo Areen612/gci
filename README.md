@@ -35,6 +35,9 @@ The inventory module is available at `/inventory/` and provides search, filterin
 
 Use these artifacts to guide future high-fidelity design and development work.
 
+## Invoice Feature Requirements
+
+- `docs/invoice_feature_requirements.md` — captures current user stories, implementation tasks, admin workflows, and search requirements for the invoicing experience.
 ## Database provisioning
 
 See [docs/database-setup.md](docs/database-setup.md) for instructions on provisioning PostgreSQL instances and managing credentials for development, staging, and production environments.
