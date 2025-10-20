@@ -9,3 +9,7 @@ This repository captures foundational design artifacts for the GCI invoicing exp
 - `docs/ui_guidelines.md` — visual and content guidelines to maintain consistency across screens.
 
 Use these artifacts to guide future high-fidelity design and development work.
+
+## Database provisioning
+
+See [docs/database-setup.md](docs/database-setup.md) for instructions on provisioning PostgreSQL instances and managing credentials for development, staging, and production environments.
