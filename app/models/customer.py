@@ -1,14 +1,12 @@
 from __future__ import annotations
-
 import uuid
-
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 
 
 class Customer(models.Model):
-    """Represents a store customer and their loyalty profile."""
+    """Represents a store customer or buyer with detailed profile and contact info."""
 
     class LoyaltyStatus(models.TextChoices):
         NONE = "None", "None"
@@ -23,10 +21,15 @@ class Customer(models.Model):
         NONE = "None", "None"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
+    first_name = models.CharField(max_length=50, null=True, blank=True)
+    last_name = models.CharField(max_length=50, null=True, blank=True)
+    name = models.CharField(max_length=255, null=True, blank=True)  # From Buyer
+
+    additional_id = models.CharField(max_length=100, null=True, blank=True)  # Buyer field
     email = models.EmailField(unique=True, null=True, blank=True)
-    phone_number = models.CharField(max_length=15, unique=True, null=True, blank=True)
+    phone_number = models.CharField(max_length=50, unique=False, null=True, blank=True)  # Increased max length
+    address = models.CharField(max_length=255, null=True, blank=True)  # Buyer field
+    postal_code = models.CharField(max_length=20, null=True, blank=True)  # Buyer field
     loyalty_status = models.CharField(
         max_length=10,
         choices=LoyaltyStatus.choices,
@@ -39,6 +42,7 @@ class Customer(models.Model):
         default=ContactMethod.NONE,
     )
     billing_address = models.JSONField(null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -63,17 +67,21 @@ class Customer(models.Model):
             ),
         ]
 
-    def clean(self) -> None:  # type: ignore[override]
+    def clean(self) -> None:
         if self.preferred_contact_method == self.ContactMethod.EMAIL and not self.email:
             raise ValidationError("Email is required when preferred contact method is Email.")
-        if self.preferred_contact_method == self.ContactMethod.SMS and not self.phone_number:
-            raise ValidationError("Phone number is required when preferred contact method is SMS.")
-        if self.preferred_contact_method == self.ContactMethod.PHONE and not self.phone_number:
-            raise ValidationError("Phone number is required when preferred contact method is Phone.")
+        if self.preferred_contact_method in (self.ContactMethod.SMS, self.ContactMethod.PHONE) and not self.phone_number:
+            raise ValidationError("Phone number is required when preferred contact method is SMS or Phone.")
 
-    def save(self, *args, **kwargs):  # type: ignore[override]
+        # Ensure name is filled if first_name/last_name not present
+        if not (self.first_name and self.last_name) and not self.name:
+            raise ValidationError("Either first_name & last_name or name must be provided.")
+
+    def save(self, *args, **kwargs) -> None:
         self.full_clean()
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
+        if self.name:
+            return self.name
         return f"{self.first_name} {self.last_name}"

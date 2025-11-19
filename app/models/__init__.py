@@ -1,5 +1,5 @@
 from .seller import Seller
-from .buyer import Buyer
+from .customer import Buyer
 from .item import Item
 from .tax import Tax
 from .discount import Discount

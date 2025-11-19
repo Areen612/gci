@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.contrib import admin
 
-from .models import InventoryItem
+from app.models import InventoryItem
 
 
 @admin.register(InventoryItem)

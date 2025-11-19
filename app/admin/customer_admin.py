@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.contrib import admin
 
-from .models import Customer
+from app.models import Customer
 
 
 @admin.register(Customer)
