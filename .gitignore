@@ -9,10 +9,44 @@ __pycache__/
 !.env.example
 !.env.staging
 
-# Django
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+pip-wheel-metadata/
+
+# Virtual Environments
+venv/
+env/
+.venv/
+
+# Django specific
+# Ignore the local development database.
+*.sqlite3
+
+# Ignore log files
 *.log
+
+# Ignore user-uploaded media files.
 media/
+
+# Ignore collected static files for deployment.
 staticfiles/
 
-# Databases
-*.sqlite3
+# IDEs and editors
+.idea/
+.vscode/
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Testing & Coverage
+.coverage
+htmlcov/
+
+# Build artifacts
+build/
+dist/
