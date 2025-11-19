@@ -3,27 +3,27 @@ import uuid
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F, Q, Sum
-from .customer import Buyer
+
 from .seller import Seller
 from .item import Item
 from .tax import Tax
 from .discount import Discount
+from .customer import Customer
 
 
+STATUS_DRAFT = "draft"
+STATUS_SENT = "sent"
+STATUS_PAID = "paid"
+STATUS_VOID = "void"
+
+STATUS_CHOICES = [
+    (STATUS_DRAFT, "Draft"),
+    (STATUS_SENT, "Sent"),
+    (STATUS_PAID, "Paid"),
+    (STATUS_VOID, "Void"),
+]
 class Invoice(models.Model):
     """Represents a customer invoice."""
-
-    STATUS_DRAFT = "draft"
-    STATUS_SENT = "sent"
-    STATUS_PAID = "paid"
-    STATUS_VOID = "void"
-
-    STATUS_CHOICES = [
-        (STATUS_DRAFT, "Draft"),
-        (STATUS_SENT, "Sent"),
-        (STATUS_PAID, "Paid"),
-        (STATUS_VOID, "Void"),
-    ]
 
     PAYMENT_METHOD_CHOICES = [
         ("Cash", "Cash"),
@@ -36,7 +36,7 @@ class Invoice(models.Model):
     uuid = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     invoice_number = models.CharField(max_length=100, unique=True)
 
-    customer = models.ForeignKey(Buyer, on_delete=models.SET_NULL, null=True, related_name="invoices")
+    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, related_name="invoices")
     seller = models.ForeignKey(Seller, on_delete=models.SET_NULL, null=True)
 
     invoice_date = models.DateField()
@@ -72,7 +72,7 @@ class Invoice(models.Model):
             models.CheckConstraint(check=Q(discount_total__gte=0), name="discount_non_negative"),
             models.CheckConstraint(check=Q(total_due__gte=0), name="total_non_negative"),
             models.CheckConstraint(
-                check=Q(status__in=models.functions.Cast(lambda: [choice for choice, _ in Invoice.STATUS_CHOICES], output_field=models.CharField())),
+                check=Q(status__in=[c[0] for c in STATUS_CHOICES]),
                 name="valid_invoice_status",
             ),
         ]

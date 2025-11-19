@@ -6,11 +6,23 @@ This document outlines the initial data model for managing customers, invoices, 
 ## Entity Relationship Diagram
 ```mermaid
 erDiagram
-    CUSTOMER ||--o{ INVOICE : "places"
+    CUSTOMER ||--o{ INVOICE : "creates"
+    •	A customer can place zero or many invoices
+	•	Every invoice must have exactly one customer
     INVOICE ||--|{ LINE_ITEM : "contains"
+    •	One invoice contains one or more line items
+	•	Every line item belongs to exactly one invoice
     LINE_ITEM }o--|| ITEM : "references"
+    •	Each line item references one item/product
+	•	An item can appear in zero or many line items
+	•	An item must exist before being referenced
     INVOICE }o--|| TAX : "applies"
-    INVOICE }o--o{ DISCOUNT : "qualifies for"
+    •	One invoice has applicable taxes, which may be zero or many
+	•	A tax type (like VAT 16%) must exist first
+	•	Many invoices may apply the same tax
+    INVOICE }o--o{ DISCOUNT : "is eligible for"
+    •	One invoice may be eligible for zero or many discounts
+	•	A discount could apply to many invoices
 
     CUSTOMER {
         uuid id PK "Primary identifier"

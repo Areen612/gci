@@ -6,7 +6,7 @@ from django.db.models import Q
 
 
 class Customer(models.Model):
-    """Represents a store customer or buyer with detailed profile and contact info."""
+    """Represents a store customer with detailed profile and contact info."""
 
     class LoyaltyStatus(models.TextChoices):
         NONE = "None", "None"
@@ -23,13 +23,13 @@ class Customer(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     first_name = models.CharField(max_length=50, null=True, blank=True)
     last_name = models.CharField(max_length=50, null=True, blank=True)
-    name = models.CharField(max_length=255, null=True, blank=True)  # From Buyer
+    name = models.CharField(max_length=255, null=True, blank=True)  # From Customer
 
-    additional_id = models.CharField(max_length=100, null=True, blank=True)  # Buyer field
+    additional_id = models.CharField(max_length=100, null=True, blank=True)  # Customer field
     email = models.EmailField(unique=True, null=True, blank=True)
     phone_number = models.CharField(max_length=50, unique=False, null=True, blank=True)  # Increased max length
-    address = models.CharField(max_length=255, null=True, blank=True)  # Buyer field
-    postal_code = models.CharField(max_length=20, null=True, blank=True)  # Buyer field
+    address = models.CharField(max_length=255, null=True, blank=True)  # Customer field
+    postal_code = models.CharField(max_length=20, null=True, blank=True)  # Customer field
     loyalty_status = models.CharField(
         max_length=10,
         choices=LoyaltyStatus.choices,
@@ -60,7 +60,7 @@ class Customer(models.Model):
                 name="uniq_customer_name_phone",
             ),
             models.CheckConstraint(
-                check=Q(preferred_contact_method=ContactMethod.NONE)
+                check=Q(preferred_contact_method="None")
                 | Q(email__isnull=False)
                 | Q(phone_number__isnull=False),
                 name="preferred_contact_requires_contact",

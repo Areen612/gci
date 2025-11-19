@@ -4,6 +4,7 @@ import uuid
 from django.core.exceptions import ValidationError
 from .invoice import Invoice
 from .item import Item
+from app.constants import TAX_RATE
 
 class InvoiceLineItem(models.Model):
     """Individual line items that compose an invoice."""
@@ -15,7 +16,7 @@ class InvoiceLineItem(models.Model):
     unit_price = models.DecimalField(max_digits=12, decimal_places=2)
     discount_amount = models.DecimalField(max_digits=12, decimal_places=3, default=0)
 
-    line_subtotal = models.DecimalField(max_digits=12, decimal_places=2)
+    line_subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     line_tax_total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     line_discount_total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     total_after_discount = models.DecimalField(max_digits=12, decimal_places=3, null=True, blank=True)
@@ -40,9 +41,12 @@ class InvoiceLineItem(models.Model):
     def calculate_totals(self):
         self.line_subtotal = self.quantity * self.unit_price
         self.line_discount_total = self.discount_amount
-        self.line_tax_total = self.line_subtotal * (self.item.tax_rate / 100 if hasattr(self.item, 'tax_rate') else 0)
-        self.total_after_discount = self.line_subtotal + self.line_tax_total - self.line_discount_total
 
+        self.line_tax_total = self.line_subtotal * TAX_RATE
+
+        self.total_after_discount = (
+            self.line_subtotal + self.line_tax_total - self.line_discount_total
+        )
     def save(self, *args, **kwargs):
         self.calculate_totals()
         super().save(*args, **kwargs)

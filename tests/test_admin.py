@@ -3,11 +3,7 @@ from __future__ import annotations
 import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-
-from gci_backend.customers.models import Customer
-from gci_backend.inventory.models import Product
-from gci_backend.invoices.models import Invoice
-
+from app.models import Customer, Invoice, Item  
 
 @pytest.fixture
 def admin_user(db):
@@ -62,7 +58,7 @@ def test_admin_invoice_line_inline(client, admin_user):
         last_name="Test",
         preferred_contact_method=Customer.ContactMethod.NONE,
     )
-    product = Product.objects.create(
+    product = Item.objects.create(
         sku="SKU-ADMIN",
         name="Admin Product",
         category="Services",

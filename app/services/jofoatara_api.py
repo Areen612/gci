@@ -7,7 +7,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 import requests
 
-from app.models import Seller, Buyer, Invoice, InvoiceItem
+from app.models import Seller, Customer, Invoice, InvoiceItem
 
 JOFOTARA_LOGIN_URL = os.environ.get("JOFOTARA_LOGIN_URL", "https://portal.jofotara.gov.jo/login")
 # This is example; replace with actual login post URL if different
@@ -81,10 +81,10 @@ class Command(BaseCommand):
                 }
             )
 
-            buyer_info = data.get("buyerDTO", {})
-            buyer, _ = Buyer.objects.get_or_create(
-                name=buyer_info.get("buyerName") or "Unknown",
-                defaults={"additional_id": buyer_info.get("additionalBuyerId")}
+            customer_info = data.get("customerDTO", {})
+            customer, _ = Customer.objects.get_or_create(
+                name=customer_info.get("customerName") or "Unknown",
+                defaults={"additional_id": customer_info.get("additionalCustomerId")}
             )
 
             # Parse date format "09-11-2025" -> day-month-year
@@ -105,7 +105,7 @@ class Command(BaseCommand):
                     "xml": data.get("xml"),
                     "qr_base64": data.get("qrCodeImage"),
                     "seller": seller,
-                    "buyer": buyer,
+                    "customer": customer,
                 }
             )
 
