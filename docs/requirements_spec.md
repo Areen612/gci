@@ -1,8 +1,7 @@
 # Store Operations Requirements Specification
 
 ## 1. Stakeholder Meeting Summary
-- **Date:** 2024-??-?? (Workshop with store owner)
-- **Participants:** Store owner, Solutions analyst (you)
+- **Participants:** Store owner, Solutions analyst 
 - **Objective:** Understand existing workflows, identify pain points, and capture requirements for customer management, billing, and inventory operations.
 
 ## 2. Current Workflows and Pain Points
