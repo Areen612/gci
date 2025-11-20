@@ -1,5 +1,5 @@
-from django.db import models
 from __future__ import annotations
+from django.db import models
 import uuid
 from django.db.models import Q, F
 

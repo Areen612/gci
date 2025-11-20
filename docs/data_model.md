@@ -5,24 +5,37 @@ This document outlines the initial data model for managing customers, invoices, 
 
 ## Entity Relationship Diagram
 ```mermaid
-erDiagram
-    CUSTOMER ||--o{ INVOICE : "creates"
-    •	A customer can place zero or many invoices
-	•	Every invoice must have exactly one customer
-    INVOICE ||--|{ LINE_ITEM : "contains"
-    •	One invoice contains one or more line items
-	•	Every line item belongs to exactly one invoice
-    LINE_ITEM }o--|| ITEM : "references"
-    •	Each line item references one item/product
-	•	An item can appear in zero or many line items
-	•	An item must exist before being referenced
-    INVOICE }o--|| TAX : "applies"
-    •	One invoice has applicable taxes, which may be zero or many
-	•	A tax type (like VAT 16%) must exist first
-	•	Many invoices may apply the same tax
-    INVOICE }o--o{ DISCOUNT : "is eligible for"
-    •	One invoice may be eligible for zero or many discounts
-	•	A discount could apply to many invoices
+    erDiagram
+        CUSTOMER ||--o{ INVOICE : creates
+        INVOICE  ||--|{ LINE_ITEM : contains
+        LINE_ITEM }o--|| ITEM : references
+        INVOICE  }o--|| TAX : applies
+        INVOICE  }o--o{ DISCOUNT : eligible_for
+
+    Relationship Notes
+
+    CUSTOMER → INVOICE
+        •	A customer can create zero or many invoices.
+        •	Every invoice must have exactly one customer.
+
+    INVOICE → LINE_ITEM
+        •	One invoice contains one or more line items.
+        •	Each line item belongs to exactly one invoice.
+
+    LINE_ITEM → ITEM
+        •	Each line item references one item/product.
+        •	An item can appear in zero or many line items.
+        •	Items must exist before they can be referenced.
+
+    INVOICE → TAX
+        •	An invoice may have zero or many applied taxes.
+        •	A tax (e.g., VAT 16%) must exist before being applied.
+        •	Many invoices may apply the same tax type.
+
+    INVOICE → DISCOUNT
+        •	An invoice may have zero or many discounts applied.
+        •	A discount can apply to many invoices.
+
 
     CUSTOMER {
         uuid id PK "Primary identifier"
