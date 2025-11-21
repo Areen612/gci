@@ -4,7 +4,7 @@ import uuid
 from django.core.exceptions import ValidationError
 from .invoice import Invoice
 from .item import Item
-from config.constants import TAX_RATE
+from app.core.constants import TAX_RATE
 
 class InvoiceLineItem(models.Model):
     """Individual line items that compose an invoice."""

@@ -1,7 +1,7 @@
 import os
 import requests
 from django.conf import settings
-from config.constants import USER_AGENT, REQUEST_TIMEOUT
+from app.core.constants import USER_AGENT, REQUEST_TIMEOUT
 
 
 class JofoataraClient:
