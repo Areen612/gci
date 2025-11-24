@@ -15,8 +15,8 @@ class Discount(models.Model):
     value = models.DecimalField(max_digits=12, decimal_places=2)
     applies_to_shipping = models.BooleanField(default=False)
 
-    starts_at = models.DateTimeField(null=True, blank=True)
-    ends_at = models.DateTimeField(null=True, blank=True)
+    starts_at = models.DateTimeField(null=True, blank=True, default=None)
+    ends_at = models.DateTimeField(null=True, blank=True, default=None)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

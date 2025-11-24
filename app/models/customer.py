@@ -21,11 +21,9 @@ class Customer(models.Model):
         NONE = "None", "None"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    first_name = models.CharField(max_length=50, null=True, blank=True)
-    last_name = models.CharField(max_length=50, null=True, blank=True)
-    name = models.CharField(max_length=255, null=True, blank=True)  # From Customer
-
-    additional_id = models.CharField(max_length=100, null=True, blank=True)  # Customer field
+    name = models.CharField(max_length=255, blank=False)
+    
+    additional_id = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField(unique=True, null=True, blank=True)
     phone_number = models.CharField(max_length=50, unique=False, null=True, blank=True)  # Increased max length
     address = models.CharField(max_length=255, null=True, blank=True)  # Customer field
@@ -35,7 +33,6 @@ class Customer(models.Model):
         choices=LoyaltyStatus.choices,
         default=LoyaltyStatus.NONE,
     )
-    date_of_birth = models.DateField(null=True, blank=True)
     preferred_contact_method = models.CharField(
         max_length=10,
         choices=ContactMethod.choices,
@@ -47,15 +44,15 @@ class Customer(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["last_name", "first_name"]
+        ordering = ["name"]
         constraints = [
             models.UniqueConstraint(
-                fields=["first_name", "last_name", "email"],
+                fields=["name", "email"],
                 condition=Q(email__isnull=False),
                 name="uniq_customer_name_email",
             ),
             models.UniqueConstraint(
-                fields=["first_name", "last_name", "phone_number"],
+                fields=["name", "phone_number"],
                 condition=Q(phone_number__isnull=False),
                 name="uniq_customer_name_phone",
             ),
@@ -72,10 +69,8 @@ class Customer(models.Model):
             raise ValidationError("Email is required when preferred contact method is Email.")
         if self.preferred_contact_method in (self.ContactMethod.SMS, self.ContactMethod.PHONE) and not self.phone_number:
             raise ValidationError("Phone number is required when preferred contact method is SMS or Phone.")
-
-        # Ensure name is filled if first_name/last_name not present
-        if not (self.first_name and self.last_name) and not self.name:
-            raise ValidationError("Either first_name & last_name or name must be provided.")
+        if not self.name:
+            raise ValidationError("Customer name must be provided.")
 
     def save(self, *args, **kwargs) -> None:
         self.full_clean()
@@ -84,4 +79,4 @@ class Customer(models.Model):
     def __str__(self) -> str:
         if self.name:
             return self.name
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.name}"

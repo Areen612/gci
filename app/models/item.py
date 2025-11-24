@@ -5,15 +5,13 @@ from django.db.models import Q, F
 
 class Item(models.Model):
     """Represents an item tracked in inventory and available for invoicing."""
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     sku = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     description = models.TextField(max_length=500, null=True, blank=True)
     category = models.CharField(max_length=100, blank=True)
-    base_price = models.DecimalField(max_digits=12, decimal_places=2)
-    unit_cost = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
-    taxable = models.BooleanField(default=True)
+    base_price = models.DecimalField(max_digits=12, decimal_places=3)
+    unit_cost = models.DecimalField(max_digits=12, decimal_places=3, null=True, blank=True)
 
     stock_on_hand = models.PositiveIntegerField(default=0)
     stock_reserved = models.PositiveIntegerField(default=0)

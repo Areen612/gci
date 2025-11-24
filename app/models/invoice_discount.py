@@ -8,7 +8,9 @@ class InvoiceDiscount(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2)
 
     class Meta:
-        unique_together = ("invoice", "discount")
-
+        constraints = [
+            models.UniqueConstraint(fields=['invoice', 'discount'], name='unique_invoice_discount')
+        ]
+        
     def __str__(self):
         return f"{self.discount.name} applied to {self.invoice.invoice_number}"

@@ -50,3 +50,6 @@ htmlcov/
 # Build artifacts
 build/
 dist/
+
+# QR code images for
+invoices/qr

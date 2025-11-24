@@ -8,7 +8,9 @@ class InvoiceTax(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2)
 
     class Meta:
-        unique_together = ("invoice", "tax")
+        constraints = [
+            models.UniqueConstraint(fields=['invoice', 'tax'], name='unique_invoice_tax')
+        ]
 
     def __str__(self):
         return f"{self.tax.name} on {self.invoice.invoice_number}"
