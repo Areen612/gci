@@ -51,4 +51,4 @@ class InvoiceLineItem(models.Model):
         self.invoice.save(update_fields=['subtotal', 'discount_total', 'total_due'])
 
     def __str__(self):
-        return f"{self.item.name} × {self.quantity}"
+        return f"LineItem {self.id} for Invoice {self.invoice.invoice_number}"
