@@ -2,7 +2,6 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton
 from .widgets.customer_search_bar import CustomerSearchBar
 from .widgets.customer_table import CustomerTable
 from .customer_details import CustomerDetailsDialog
-from app.models import Customer
 
 
 class CustomersPage(QWidget):
@@ -14,9 +13,7 @@ class CustomersPage(QWidget):
         main_layout.setContentsMargins(12, 12, 12, 12)
         main_layout.setSpacing(10)
 
-        # ─────────────────────────────────────────
-        # TOP BAR: Search + Add Customer Button
-        # ─────────────────────────────────────────
+        # ── Top bar: Search + Add Customer ───────────────────────────────
         top_bar = QHBoxLayout()
 
         self.search_bar = CustomerSearchBar()
@@ -29,9 +26,7 @@ class CustomersPage(QWidget):
 
         main_layout.addLayout(top_bar)
 
-        # ─────────────────────────────────────────
-        # TABLE
-        # ─────────────────────────────────────────
+        # ── Customers table ─────────────────────────────────────────────
         self.table = CustomerTable(show_invoice_columns=True)
         self.table.customer_clicked.connect(self.open_customer_by_id)
         self.table.view_invoices_clicked.connect(self.open_invoices_for_customer)
@@ -40,18 +35,16 @@ class CustomersPage(QWidget):
 
         self.setLayout(main_layout)
 
-    # ─────────────────────────────────────────
-    # CALLBACKS
-    # ─────────────────────────────────────────
+    # ── Callbacks ──────────────────────────────────────────────────────
     def open_customer_by_id(self, customer_id: str):
         dlg = CustomerDetailsDialog(customer_id)
         dlg.exec()
 
     def open_invoices_for_customer(self, customer_id: str):
-        from dialogs.customer_invoices_dialog import InvoicesPageDialog
-        dlg = InvoicesPageDialog(customer_id)
+        from ui.dialogs.invoices_dialog import InvoicesPageDialog
+        dlg = InvoicesPageDialog(customer_id, self)
         dlg.exec()
 
     def add_customer(self):
-        # Later: open create-customer dialog
+        # later: open "create customer" dialog
         print("Add customer clicked!")
