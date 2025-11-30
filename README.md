@@ -35,6 +35,10 @@ The inventory module is available at `/inventory/` and provides search, filterin
 
 Use these artifacts to guide future high-fidelity design and development work.
 
+## Desktop Django admin shell
+
+See [docs/desktop-admin.md](docs/desktop-admin.md) for instructions on running the Django admin dashboard inside an Electron desktop shell backed by an embedded local server.
+
 ## Invoice Feature Requirements
 
 - `docs/invoice_feature_requirements.md` — captures current user stories, implementation tasks, admin workflows, and search requirements for the invoicing experience.

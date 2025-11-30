@@ -50,9 +50,12 @@ htmlcov/
 # Build artifacts
 build/
 dist/
+node_modules/
+desktop_admin/electron/node_modules/
 
 # QR code images for
 invoices/qr
 
 # Backup files
 backup/
+desktop_app/database/

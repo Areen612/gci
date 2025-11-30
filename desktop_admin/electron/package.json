@@ -1,0 +1,13 @@
+{
+  "name": "desktop-admin-shell",
+  "version": "0.1.0",
+  "description": "Electron shell that embeds the Django admin dashboard with a bundled server.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "start:windows": "set PYTHON=python && electron ."
+  },
+  "devDependencies": {
+    "electron": "^28.2.10"
+  }
+}
