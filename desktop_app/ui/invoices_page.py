@@ -1,4 +1,5 @@
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout
+from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
+
 
 class InvoicesPage(QWidget):
     def __init__(self):
