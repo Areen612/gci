@@ -62,8 +62,16 @@ ASGI_APPLICATION = "config.asgi.application"
 
 # Database configuration
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
+
+# DATABASES = {
+#     "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=os.getenv("DB_SSL_REQUIRED", "False").lower() in {"1", "true", "yes"}),
+# }
+
 DATABASES = {
-    "default": dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=os.getenv("DB_SSL_REQUIRED", "False").lower() in {"1", "true", "yes"}),
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "desktop_app" / "database" / "db.sqlite3",
+    }
 }
 
 # Password validation
