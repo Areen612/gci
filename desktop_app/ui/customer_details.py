@@ -32,15 +32,14 @@ class CustomerDetailsDialog(QDialog):
 
         info_panel = QWidget(self)
         info_layout = QFormLayout(info_panel)
-        info_layout.setLabelAlignment(Qt.AlignRight)
+        info_layout.setLabelAlignment(Qt.AlignLeft)
+        info_layout.setFormAlignment(Qt.AlignLeft)
         info_layout.setHorizontalSpacing(12)
         info_layout.setVerticalSpacing(6)
 
         info_layout.addRow("Email:", QLabel(customer.email or "—"))
         info_layout.addRow("Phone:", QLabel(customer.phone_number or "—"))
-        info_layout.addRow("Additional ID:", QLabel(customer.additional_id or "—"))
         info_layout.addRow("Address:", QLabel(customer.address or "—"))
-        info_layout.addRow("Postal code:", QLabel(customer.postal_code or "—"))
         info_layout.addRow("Preferred contact:", QLabel(customer.preferred_contact_method))
         info_layout.addRow("Loyalty status:", QLabel(customer.loyalty_status))
 
@@ -48,26 +47,26 @@ class CustomerDetailsDialog(QDialog):
 
         # ── Invoices table ─────────────────────────────────────────────
         invoices_label = QLabel("<b>Invoices</b>")
-        invoices_label.setAlignment(Qt.AlignLeft)
+        invoices_label.setAlignment(Qt.AlignVCenter)
         layout.addWidget(invoices_label)
 
         self.invoice_table = QTableWidget(0, 4, self)
         self.invoice_table.setHorizontalHeaderLabels(
-            ["Invoice #", "Status", "Issue date", "Total due"]
+            ["Invoice Number", "Status", "Issue date", "Total due"]
         )
-        self.invoice_table.verticalHeader().setVisible(False)
+        self.invoice_table.verticalHeader().setVisible(True)
         self.invoice_table.setEditTriggers(QTableWidget.NoEditTriggers)
         self.invoice_table.setSelectionMode(QTableWidget.NoSelection)
         header = self.invoice_table.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.Stretch)
-        header.setDefaultAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        header.setDefaultAlignment(Qt.AlignCenter)
 
         for inv in customer.invoices.order_by("-issue_date", "-invoice_number"):
             row = self.invoice_table.rowCount()
             self.invoice_table.insertRow(row)
 
             number_item = QTableWidgetItem(inv.invoice_number)
-            number_item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            number_item.setTextAlignment(Qt.AlignCenter)
             self.invoice_table.setItem(row, 0, number_item)
 
             status_item = QTableWidgetItem(inv.get_status_display())
@@ -80,7 +79,7 @@ class CustomerDetailsDialog(QDialog):
             self.invoice_table.setItem(row, 2, date_item)
 
             total_item = QTableWidgetItem(f"{inv.total_due:.6f}")
-            total_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            total_item.setTextAlignment(Qt.AlignCenter)
             self.invoice_table.setItem(row, 3, total_item)
 
         layout.addWidget(self.invoice_table)
