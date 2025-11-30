@@ -1,7 +1,9 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton
+
+from .customer_details import CustomerDetailsDialog
+from .dialogs.add_customer_dialog import AddCustomerDialog
 from .widgets.customer_search_bar import CustomerSearchBar
 from .widgets.customer_table import CustomerTable
-from .customer_details import CustomerDetailsDialog
 
 
 class CustomersPage(QWidget):
@@ -22,6 +24,7 @@ class CustomersPage(QWidget):
 
         add_customer_btn = QPushButton("Add Customer")
         add_customer_btn.clicked.connect(self.add_customer)
+        add_customer_btn.setMinimumWidth(140)
         top_bar.addWidget(add_customer_btn)
 
         main_layout.addLayout(top_bar)
@@ -46,5 +49,6 @@ class CustomersPage(QWidget):
         dlg.exec()
 
     def add_customer(self):
-        # later: open "create customer" dialog
-        print("Add customer clicked!")
+        dialog = AddCustomerDialog(self)
+        if dialog.exec():
+            self.table.load_customers()

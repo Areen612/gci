@@ -1,33 +1,86 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QDialog,
+    QVBoxLayout,
+    QLabel,
+    QTableWidget,
+    QTableWidgetItem,
+    QFormLayout,
+    QWidget,
+    QHeaderView,
+)
+
 from app.models import Customer
 
 
 class CustomerDetailsDialog(QDialog):
+    """Detailed view for a single customer with recent invoices."""
 
-    def __init__(self, customer_id):
-        super().__init__()
-        self.setWindowTitle("Customer Details")
-        self.setMinimumWidth(600)
+    def __init__(self, customer_id, parent=None):
+        super().__init__(parent)
 
         customer = Customer.objects.prefetch_related("invoices").get(id=customer_id)
 
-        layout = QVBoxLayout(self)
-        layout.addWidget(QLabel(f"<b>Name:</b> {customer.name}"))
-        layout.addWidget(QLabel(f"<b>Email:</b> {customer.email or '—'}"))
-        layout.addWidget(QLabel(f"<b>Phone:</b> {customer.phone_number or '—'}"))
+        self.setWindowTitle(f"Customer – {customer.name}")
+        self.setMinimumWidth(760)
 
-        self.invoice_table = QTableWidget(0, 3, self)
-        self.invoice_table.setHorizontalHeaderLabels(["Invoice #", "Issue date", "Total due"])
+        layout = QVBoxLayout(self)
+        layout.setSpacing(10)
+
+        # ── Customer header & info panel ───────────────────────────────
+        layout.addWidget(QLabel(f"<h2 style='margin:0'>{customer.name}</h2>"))
+
+        info_panel = QWidget(self)
+        info_layout = QFormLayout(info_panel)
+        info_layout.setLabelAlignment(Qt.AlignRight)
+        info_layout.setHorizontalSpacing(12)
+        info_layout.setVerticalSpacing(6)
+
+        info_layout.addRow("Email:", QLabel(customer.email or "—"))
+        info_layout.addRow("Phone:", QLabel(customer.phone_number or "—"))
+        info_layout.addRow("Additional ID:", QLabel(customer.additional_id or "—"))
+        info_layout.addRow("Address:", QLabel(customer.address or "—"))
+        info_layout.addRow("Postal code:", QLabel(customer.postal_code or "—"))
+        info_layout.addRow("Preferred contact:", QLabel(customer.preferred_contact_method))
+        info_layout.addRow("Loyalty status:", QLabel(customer.loyalty_status))
+
+        layout.addWidget(info_panel)
+
+        # ── Invoices table ─────────────────────────────────────────────
+        invoices_label = QLabel("<b>Invoices</b>")
+        invoices_label.setAlignment(Qt.AlignLeft)
+        layout.addWidget(invoices_label)
+
+        self.invoice_table = QTableWidget(0, 4, self)
+        self.invoice_table.setHorizontalHeaderLabels(
+            ["Invoice #", "Status", "Issue date", "Total due"]
+        )
         self.invoice_table.verticalHeader().setVisible(False)
         self.invoice_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.invoice_table.setSelectionMode(QTableWidget.NoSelection)
+        header = self.invoice_table.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.Stretch)
+        header.setDefaultAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
-        for inv in customer.invoices.all():
+        for inv in customer.invoices.order_by("-issue_date", "-invoice_number"):
             row = self.invoice_table.rowCount()
             self.invoice_table.insertRow(row)
 
-            self.invoice_table.setItem(row, 0, QTableWidgetItem(inv.invoice_number))
-            self.invoice_table.setItem(row, 1, QTableWidgetItem(str(inv.issue_date)))
-            self.invoice_table.setItem(row, 2, QTableWidgetItem(str(inv.total_due)))
+            number_item = QTableWidgetItem(inv.invoice_number)
+            number_item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            self.invoice_table.setItem(row, 0, number_item)
+
+            status_item = QTableWidgetItem(inv.get_status_display())
+            status_item.setTextAlignment(Qt.AlignCenter)
+            self.invoice_table.setItem(row, 1, status_item)
+
+            date_text = inv.issue_date.strftime("%b %d, %Y") if inv.issue_date else "—"
+            date_item = QTableWidgetItem(date_text)
+            date_item.setTextAlignment(Qt.AlignCenter)
+            self.invoice_table.setItem(row, 2, date_item)
+
+            total_item = QTableWidgetItem(f"{inv.total_due:.6f}")
+            total_item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            self.invoice_table.setItem(row, 3, total_item)
 
         layout.addWidget(self.invoice_table)

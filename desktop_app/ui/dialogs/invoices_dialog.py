@@ -1,9 +1,10 @@
 from PySide6.QtWidgets import (
+    QAbstractItemView,
     QDialog,
-    QVBoxLayout,
+    QHeaderView,
     QTableWidget,
     QTableWidgetItem,
-    QAbstractItemView,
+    QVBoxLayout,
 )
 from PySide6.QtCore import Qt
 from PySide6 import QtGui
@@ -40,7 +41,10 @@ class InvoicesPageDialog(QDialog):
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.verticalHeader().setVisible(False)
-        self.table.horizontalHeader().setStretchLastSection(True)
+        header = self.table.horizontalHeader()
+        header.setStretchLastSection(True)
+        header.setSectionResizeMode(QHeaderView.Stretch)
+        header.setDefaultAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
         self.load_invoices()
         self.table.itemClicked.connect(self.on_item_clicked)

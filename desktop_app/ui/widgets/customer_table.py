@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QTableWidget, QTableWidgetItem, QAbstractItemView
 from PySide6.QtCore import Qt, Signal
 from PySide6 import QtGui
+from PySide6.QtWidgets import QAbstractItemView, QHeaderView, QTableWidget, QTableWidgetItem
 from app.models import Customer
 
 BABY_BLUE = "#4da6ff"
@@ -29,11 +29,9 @@ class CustomerTable(QTableWidget):
         self.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.verticalHeader().setVisible(False)
 
-        self.setColumnWidth(0, 250)
-        self.setColumnWidth(1, 200)
-        self.setColumnWidth(2, 150)
-        self.setColumnWidth(3, 90)
-        self.setColumnWidth(4, 130)
+        header = self.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.Stretch)
+        header.setDefaultAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
         self.itemClicked.connect(self.on_item_clicked)
 

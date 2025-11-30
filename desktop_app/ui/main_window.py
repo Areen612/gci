@@ -1,14 +1,12 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QHBoxLayout, QMainWindow, QWidget
 
-from .navigation import NavigationSidebar
-from .dashboard_page import DashboardPage
 from .customers_page import CustomersPage
+from .dashboard_page import DashboardPage
 from .invoices_page import InvoicesPage
+from .navigation import NavigationSidebar
 
 
 class MainWindow(QMainWindow):
-
     def __init__(self):
         super().__init__()
         self.setWindowTitle("GCI Manager")

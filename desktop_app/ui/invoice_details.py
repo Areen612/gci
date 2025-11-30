@@ -1,16 +1,17 @@
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QDialog,
     QVBoxLayout,
     QLabel,
     QTableWidget,
     QTableWidgetItem,
+    QHeaderView,
 )
-from PySide6.QtCore import Qt
+
 from app.models import Invoice
 
 
 class InvoiceDetailsDialog(QDialog):
-
     def __init__(self, invoice_id: str, parent=None):
         super().__init__(parent)
 
@@ -21,7 +22,7 @@ class InvoiceDetailsDialog(QDialog):
         )
 
         self.setWindowTitle(f"Invoice {invoice.invoice_number}")
-        self.setMinimumWidth(800)
+        self.setMinimumWidth(820)
 
         layout = QVBoxLayout(self)
 
@@ -50,12 +51,13 @@ class InvoiceDetailsDialog(QDialog):
         table.verticalHeader().setVisible(False)
         table.setEditTriggers(QTableWidget.NoEditTriggers)
         table.horizontalHeader().setStretchLastSection(True)
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         for line in invoice.line_items.all():
             row = table.rowCount()
             table.insertRow(row)
 
-            item_name = line.item.name if line.item else "—"
+            item_name = line.item.name if line.item else (line.item_name or "—")
             table.setItem(row, 0, QTableWidgetItem(item_name))
             table.setItem(row, 1, QTableWidgetItem(str(line.quantity)))
             table.setItem(row, 2, QTableWidgetItem(str(line.unit_price)))
