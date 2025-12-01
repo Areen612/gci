@@ -5,9 +5,24 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "start:windows": "set PYTHON=python && electron ."
+    "start:windows": "set PYTHON=python && electron .",
+    "dist": "electron-builder --win"
+  },
+  "build": {
+    "appId": "com.gci.desktopadmin",
+    "productName": "GCI Admin",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    }
   },
   "devDependencies": {
-    "electron": "^28.2.10"
+    "electron": "^28.2.10",
+    "electron-builder": "^26.0.12"
   }
 }

@@ -1,11 +1,13 @@
 from __future__ import annotations
 import uuid
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F, Q, Sum
 
 from .seller import Seller
 from .customer import Customer
+
 
 STATUS_DRAFT = "DRAFT"
 STATUS_ISSUED = "ISSUED"
@@ -18,6 +20,8 @@ STATUS_CHOICES = [
     (STATUS_UNPAID, "Unpaid"),
     (STATUS_DECLINED, "Declined"),
 ]
+
+
 class Invoice(models.Model):
     """Represents a customer invoice."""
 
@@ -70,8 +74,11 @@ class Invoice(models.Model):
         ]
 
     def clean(self):
+        # Require payment method for issued invoices
         if self.status == STATUS_ISSUED and not self.payment_method:
-            raise ValidationError("Payment method is required when invoice is marked as Issued (Paid).")
+            raise ValidationError(
+                "Payment method is required when invoice is marked as Issued."
+            )
 
     def update_totals(self):
         """Recalculate subtotal, discount, and total_due based on line items."""
@@ -83,14 +90,44 @@ class Invoice(models.Model):
         self.discount_total = totals.get("discount_total") or 0
         self.total_due = self.subtotal - self.discount_total
 
+    @staticmethod
+    def generate_next_invoice_number() -> str:
+        """
+        Generate the next invoice number in the format EIN00001, EIN00002, ...
+        based on the highest existing EIN number.
+        """
+        last_number = (
+            Invoice.objects.filter(invoice_number__startswith="EIN")
+            .order_by("-invoice_number")
+            .values_list("invoice_number", flat=True)
+            .first()
+        )
+
+        if not last_number:
+            return "EIN00001"
+
+        numeric_part = int(last_number.replace("EIN", ""))
+        next_number = numeric_part + 1
+        return f"EIN{next_number:05d}"
+
     def save(self, *args, **kwargs):
+        is_new = self.pk is None
+
+        # Auto-generate number only if missing
+        if is_new and not self.invoice_number:
+            self.invoice_number = Invoice.generate_next_invoice_number()
+
         super().save(*args, **kwargs)
 
+        # mark for line-items so they know this is the creation cycle
+        self._during_creation = is_new
+
+        # keep totals in sync
         self.update_totals()
         super().save(update_fields=["subtotal", "discount_total", "total_due"])
 
     @property
-    def is_locked(self):
+    def is_locked(self) -> bool:
         """Invoice can only be edited while status = DRAFT."""
         return self.status != STATUS_DRAFT
 
