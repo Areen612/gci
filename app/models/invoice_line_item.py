@@ -1,12 +1,11 @@
-from django.db import models
-from django.db.models import Q, F
 import uuid
 from django.core.exceptions import ValidationError
+from django.db import models
+from django.db.models import F, Q
 from .invoice import Invoice
 from .item import Item
 
 class InvoiceLineItem(models.Model):
-    """Individual line items that compose an invoice."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # Many-to-One (ForeignKey): Multiple InvoiceLineItems belong to one Invoice
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name="line_items") 
@@ -34,7 +33,17 @@ class InvoiceLineItem(models.Model):
             ),
         ]
 
-    def clean(self) -> None:
+    def clean(self):
+        self.calculate_totals()
+
+        # skip locking completely during invoice creation
+        if hasattr(self.invoice, "_during_creation") and self.invoice._during_creation:
+            return
+
+        # enforce locking only on existing invoices
+        if self.invoice and self.invoice.pk and self.invoice.is_locked:
+            raise ValidationError("Issued invoices cannot be modified.")
+
         if self.discount_amount > self.line_subtotal:
             raise ValidationError("Discount amount cannot exceed the line subtotal.")
 
@@ -44,11 +53,16 @@ class InvoiceLineItem(models.Model):
         self.total_after_discount = self.line_subtotal - self.line_discount_total
         
     def save(self, *args, **kwargs):
-        self.calculate_totals()
-        super().save(*args, **kwargs)
-        # Update parent invoice totals
-        self.invoice.update_totals()
-        self.invoice.save(update_fields=['subtotal', 'discount_total', 'total_due'])
+        is_new = self.pk is None
 
+        super().save(*args, **kwargs)
+
+        # Mark invoice state so line items know this is the first save cycle
+        self._during_creation = is_new
+
+        # Update totals after creation
+        self.invoice.update_totals()
+        self.invoice.save(update_fields=["subtotal", "discount_total", "total_due"])
+    
     def __str__(self):
-        return f"LineItem {self.id} for Invoice {self.invoice.invoice_number}"
+        return self.item_name

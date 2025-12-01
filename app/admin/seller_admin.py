@@ -5,4 +5,4 @@ from app.models import Seller
 @admin.register(Seller)
 class SellerAdmin(admin.ModelAdmin):
     search_fields = ("name",)
-    list_display = ("name", "tax_number")
+    list_display = ("name", "mobile")

@@ -8,4 +8,4 @@ class Seller(models.Model):
     postal_code = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.name} ({self.tax_number})"
+        return f"{self.name} ({self.mobile})" if self.mobile else self.name
