@@ -1,0 +1,106 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static admin_urls admin_list log admin_loyalty %}
+
+{# --- extra CSS to place a new column next to Recent actions --- #}
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        /* Put the two modules (recent actions + loyalty) side by side */
+        .dashboard-columns {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+        .dashboard-columns .module {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Optional: tighter styling for loyalty list */
+        .loyalty-module h3 {
+            margin-top: 1em;
+            font-size: 13px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+        .loyalty-module ul {
+            margin: 0 0 0.5em 1em;
+            padding: 0;
+            list-style: disc;
+        }
+        .loyalty-module li {
+            margin: 0.1em 0;
+        }
+        .loyalty-module .quiet {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+    </style>
+{% endblock extrastyle %}
+
+{% block content %}
+<div id="content-main"></div>
+{% endblock content %}
+
+{% block sidebar %}
+<div class="dashboard-columns">
+    {# LEFT COLUMN: Django’s standard “Recent actions” #}
+    <div class="module">
+        <h2>{% trans 'Recent actions' %}</h2>
+        <h3>{% trans 'My actions' %}</h3>
+        {% get_admin_log 10 as admin_log for_user user %}
+        {% if not admin_log %}
+            <p>{% trans 'None available' %}</p>
+        {% else %}
+            <ul class="actionlist">
+                {% for entry in admin_log %}
+                    <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %} changelink{% endif %}{% if entry.is_deletion %} deletelink{% endif %}">
+                        {% if entry.is_deletion or not entry.get_admin_url %}
+                            {{ entry.object_repr }}
+                        {% else %}
+                            <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                        {% endif %}
+                        <span class="mini quiet">
+                            {% if entry.content_type %}
+                                {{ entry.content_type.name|capfirst }}
+                            {% else %}
+                                {% trans 'Unknown content' %}
+                            {% endif %}
+                        </span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    {# RIGHT COLUMN: Customer loyalty status #}
+    <div class="module loyalty-module">
+        <h2>{% trans "Customer loyalty status" %}</h2>
+
+        {% loyalty_leaders as loyalty_groups %}
+
+        {% for group in loyalty_groups %}
+            <h3>{{ group.status_label }}</h3>
+
+            {% if group.customers %}
+                <ul>
+                    {% for customer in group.customers %}
+                        <li>
+                            {{ customer.name }}
+                            {% if customer.invoice_total %}
+                                <span class="quiet">
+                                    ({{ customer.invoice_total }} invoice{{ customer.invoice_total|pluralize }})
+                                </span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="quiet">
+                    {% trans "No customers in this tier yet." %}
+                </p>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock sidebar %}

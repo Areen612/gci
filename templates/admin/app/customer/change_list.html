@@ -1,0 +1,43 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block content %}
+  {% if loyalty_leaders %}
+    <div class="module" id="loyalty-leaders">
+      <h2>{% trans "Top customers by loyalty status" %}</h2>
+      <div class="inline-group">
+        {% for section in loyalty_leaders %}
+          <fieldset class="module aligned">
+            <h3>{{ section.status_label }}</h3>
+            {% if section.customers %}
+              <table class="adminlist">
+                <thead>
+                  <tr>
+                    <th>{% trans "Customer" %}</th>
+                    <th>{% trans "Email" %}</th>
+                    <th>{% trans "Invoices" %}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for customer in section.customers %}
+                    <tr>
+                      <td>
+                        <a href="{% url 'admin:app_customer_change' customer.pk %}">{{ customer.name }}</a>
+                      </td>
+                      <td>{{ customer.email|default:"-" }}</td>
+                      <td>{{ customer.invoice_total }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+              <p class="help">{% trans "No customers in this tier yet." %}</p>
+            {% endif %}
+          </fieldset>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  {{ block.super }}
+{% endblock %}

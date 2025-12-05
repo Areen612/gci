@@ -1,8 +1,0 @@
-{% extends 'base.html' %}
-{% block title %}Customer Detail{% endblock %}
-{% block content %}
-<h1>{{ customer.full_name }}</h1>
-<p>Email: {{ customer.email|default:'—' }}</p>
-<p>Phone: {{ customer.phone_number|default:'—' }}</p>
-<p>Loyalty: {{ customer.get_loyalty_status_display }}</p>
-{% endblock %}

@@ -78,7 +78,7 @@ def process_invoice_payload(data):
                 InvoiceLineItem.objects.create(
                     invoice=invoice,
                     item=None,
-                    item_name=line.get("productDescription", "Unknown"),
+                    description=line.get("productDescription", "Unknown"),
                     quantity=line.get("quantity", 1),
                     unit_price=line.get("unitPrice", 0),
                     discount_amount=line.get("discountAmount", 0),

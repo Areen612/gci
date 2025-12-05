@@ -57,8 +57,8 @@ class InvoiceDetailsDialog(QDialog):
             row = table.rowCount()
             table.insertRow(row)
 
-            item_name = line.item.name if line.item else (line.item_name or "—")
-            table.setItem(row, 0, QTableWidgetItem(item_name))
+            description = line.item.name if line.item else (line.description or "—")
+            table.setItem(row, 0, QTableWidgetItem(description))
             table.setItem(row, 1, QTableWidgetItem(str(line.quantity)))
             table.setItem(row, 2, QTableWidgetItem(str(line.unit_price)))
             table.setItem(row, 3, QTableWidgetItem(str(line.discount_amount)))

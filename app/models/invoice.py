@@ -76,9 +76,11 @@ class Invoice(models.Model):
     def clean(self):
         # Require payment method for issued invoices
         if self.status == STATUS_ISSUED and not self.payment_method:
-            raise ValidationError(
-                "Payment method is required when invoice is marked as Issued."
-            )
+            raise ValidationError("Payment method is required when invoice is issued.")
+
+        # Require at least one line item (only if invoice already exists OR being created)
+        if self.pk and self.line_items.count() == 0:
+            raise ValidationError("Invoice must contain at least one line item.")
 
     def update_totals(self):
         """Recalculate subtotal, discount, and total_due based on line items."""
@@ -125,11 +127,17 @@ class Invoice(models.Model):
         # keep totals in sync
         self.update_totals()
         super().save(update_fields=["subtotal", "discount_total", "total_due"])
+        
+        if self.customer:
+            self.customer.update_loyalty_status_from_invoices()
 
     @property
     def is_locked(self) -> bool:
-        """Invoice can only be edited while status = DRAFT."""
-        return self.status != STATUS_DRAFT
+        """
+        Returns True if the invoice status is 'ISSUED', indicating that the invoice
+        is locked and cannot be edited. Otherwise, returns False.
+        """
+        return self.status == STATUS_ISSUED
 
     def __str__(self):
         return f"Invoice {self.invoice_number}"

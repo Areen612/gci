@@ -1,28 +1,136 @@
-/* Container for line item inlines */
-.inline-group.invoice-line-items {
-    overflow-x: auto !important;
-    display: block !important;
+.inline-group table {
+    table-layout: auto !important;
+}
+
+fieldset.module.invoice-line-items table {
+    table-layout: auto !important; /* override Django fixed layout */
     width: 100% !important;
-    padding-bottom: 10px;
+    max-width: 100% !important;
 }
 
-/* Make table behave nicely on wide content */
-.inline-group.invoice-line-items table {
-    width: max-content !important;
-    min-width: 100% !important;
-    table-layout: fixed !important;
+/* Prevent fields from touching each other */
+fieldset.module.invoice-line-items td {
+    padding-right: 8px !important; /* space between cells */
 }
 
-/* Header cells: keep single line */
-.inline-group.invoice-line-items th {
-    white-space: nowrap !important;
-    padding: 8px !important;
+/* Ensure inputs fit inside their cells */
+fieldset.module.invoice-line-items td input {
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
-/* Inputs/selects: consistent width */
-.inline-group.invoice-line-items td input,
-.inline-group.invoice-line-items td select {
-    width: 150px !important;
-    min-width: 120px !important;
+/* Add minimum width to numeric fields to avoid collapse */
+fieldset.module.invoice-line-items td.field-discount_amount input,
+fieldset.module.invoice-line-items td.field-line_subtotal p,
+fieldset.module.invoice-line-items td.field-line_discount_total p,
+fieldset.module.invoice-line-items td.field-total_after_discount p {
+    min-width: 55px !important;
+}
+
+/* ITEM column */
+fieldset.module.invoice-line-items th.column-item {
+    width: 200px !important;
+}
+
+fieldset.module.invoice-line-items td.field-item {
+    padding-left: 0px !important;
+    width: 200px !important;
     max-width: 200px !important;
+}
+
+/* DESCRIPTION column */
+fieldset.module.invoice-line-items th.column-description {
+    width: 200px !important;
+}
+
+fieldset.module.invoice-line-items td.field-description {
+    width: 200px !important;
+    max-width: 200px !important;
+}
+
+/* QUANTITY column */
+fieldset.module.invoice-line-items th.column-quantity {
+    width: 50px !important;
+    text-align: center;
+}
+
+fieldset.module.invoice-line-items td.field-quantity {
+    width: 50px !important;   /* adjust here */
+    max-width: 50px !important;
+    text-align: center;
+}
+
+/* UNIT PRICE column */
+fieldset.module.invoice-line-items th.column-unit_price {
+    width: 50px !important;
+    text-align: center;
+}
+
+fieldset.module.invoice-line-items td.field-unit_price {
+    width: 50px !important;  /* adjust here */
+    max-width: 50px !important;
+    text-align: center;
+}
+
+/* DISCOUNT AMOUNT column */
+fieldset.module.invoice-line-items th.column-discount_amount {
+    width: 50px !important;
+    text-align: center;
+}
+
+fieldset.module.invoice-line-items td.field-discount_amount {
+    width: 50px !important;  /* adjust here */
+    max-width: 50px !important;
+    text-align: center;
+}
+
+/* LINE SUBTOTAL column */
+fieldset.module.invoice-line-items th.column-line_subtotal {
+    width: 50px !important;
+    max-width: 50px !important;
+    text-align: center;
+}
+
+fieldset.module.invoice-line-items td.field-line_subtotal {
+    width: 50px !important;  /* adjust here */
+    max-width: 50px !important;
+    text-align: center;
+}
+
+/* LINE DISCOUNT TOTAL column */
+fieldset.module.invoice-line-items th.column-line_discount_total {
+    width: 50px !important;
+    text-align: center;
+}
+
+fieldset.module.invoice-line-items td.field-line_discount_total {
+    width: 50px !important;  /* adjust here */
+    max-width: 50px !important;
+    text-align: center;
+}
+
+/* TOTAL AFTER DISCOUNT column */
+fieldset.module.invoice-line-items th.column-total_after_discount {
+    width: 50px !important;
+    text-align: center;
+}
+
+fieldset.module.invoice-line-items td.field-total_after_discount {
+    width: 50px !important;  /* adjust here */
+    max-width: 50px !important;
+    text-align: center;
+}
+
+/* DELETE column */
+fieldset.module.invoice-line-items th.delete {
+    width: 50px !important;
+    text-align: center;
+}
+
+fieldset.module.invoice-line-items td.delete {
+    width: 50px !important;   /* adjust here */
+    max-width: 50px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

@@ -16,13 +16,11 @@ class InvoiceLineItem(models.Model):
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name="line_items") 
     # Many-to-One (ForeignKey): Each line item references one Item
     item = models.ForeignKey(Item, on_delete=models.SET_NULL, null=True, blank=True)
-    item_name = models.CharField(max_length=255, default="Unknown Item")
+    description = models.CharField(max_length=255, default="Unknown Item")
     
     quantity = models.PositiveIntegerField()
     unit_price = models.DecimalField(max_digits=12, decimal_places=3)
-    discount_amount = models.DecimalField(
-        max_digits=12, decimal_places=3, default=0
-    )  # absolute amount, not percent
+    discount_amount = models.DecimalField(max_digits=12, decimal_places=3, default=0)
 
     line_subtotal = models.DecimalField(max_digits=12, decimal_places=3, default=0)
     line_discount_total = models.DecimalField(max_digits=12, decimal_places=3, default=0)
@@ -72,4 +70,4 @@ class InvoiceLineItem(models.Model):
         self.invoice.save(update_fields=["subtotal", "discount_total", "total_due"])
     
     def __str__(self):
-        return self.item_name
+        return self.description
