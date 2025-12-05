@@ -62,13 +62,13 @@ fieldset.module.invoice-line-items td.field-quantity {
 
 /* UNIT PRICE column */
 fieldset.module.invoice-line-items th.column-unit_price {
-    width: 50px !important;
+    width: 60px !important;
     text-align: center;
 }
 
 fieldset.module.invoice-line-items td.field-unit_price {
-    width: 50px !important;  /* adjust here */
-    max-width: 50px !important;
+    width: 60px !important;  /* adjust here */
+    max-width: 60px !important;
     text-align: center;
 }
 

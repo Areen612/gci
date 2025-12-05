@@ -27,6 +27,8 @@ class InvoiceLineItem(models.Model):
     total_after_discount = models.DecimalField(max_digits=12, decimal_places=3, null=True, blank=True)
     
     class Meta:
+        verbose_name = "Invoice Item"
+        verbose_name_plural = "Invoice Items"
         constraints = [
             models.CheckConstraint(check=Q(quantity__gt=0), name="line_quantity_positive"),
             models.CheckConstraint(check=Q(unit_price__gte=0), name="line_unit_price_non_negative"),
