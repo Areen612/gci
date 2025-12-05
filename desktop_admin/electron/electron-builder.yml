@@ -1,0 +1,26 @@
+appId: com.gci.desktopadmin
+productName: GCI Admin
+
+directories:
+  output: dist
+  buildResources: build
+
+files:
+  - "**/*"
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+
+nsis:
+  oneClick: true
+  perMachine: false
+  allowToChangeInstallationDirectory: false
+  deleteAppDataOnUninstall: false
+
+publish:
+  provider: github
+  owner: Areen612
+  repo: gci
