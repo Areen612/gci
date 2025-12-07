@@ -20,5 +20,5 @@ nsis:
   allowToChangeInstallationDirectory: false
   deleteAppDataOnUninstall: false
 
-# IMPORTANT: disable auto-publishing from electron-builder
-publish: "never"
+# IMPORTANT: disable auto-publishing from electron-builder for this stage
+publish: null
