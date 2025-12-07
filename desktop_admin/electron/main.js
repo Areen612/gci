@@ -1,8 +1,8 @@
 const { app, BrowserWindow, dialog } = require('electron');
 const { spawn } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 
-const ROOT = path.resolve(__dirname, '..', '..');
 const DJANGO_PORT = process.env.DJANGO_PORT || '8765';
 let djangoProcess;
 
@@ -13,11 +13,36 @@ function startDjango() {
   };
 
   if (app.isPackaged) {
-    // === PRODUCTION: use bundled Python virtualenv ===
+    // -------- PRODUCTION: bundled Python & backend inside resources --------
     const resourcesPath = process.resourcesPath;
     const backendPath = path.join(resourcesPath, 'gci-backend');
+
+    // This is where the venv is copied by extraResources (python-win -> python)
     const pythonExe = path.join(resourcesPath, 'python', 'Scripts', 'python.exe');
     const adminServer = path.join(backendPath, 'desktop_admin', 'admin_server.py');
+
+    console.log('[main] resourcesPath =', resourcesPath);
+    console.log('[main] pythonExe =', pythonExe);
+    console.log('[main] adminServer =', adminServer);
+
+    // Safety checks so we fail with a clear error instead of ENOENT
+    if (!fs.existsSync(pythonExe)) {
+      dialog.showErrorBox(
+        'Startup error',
+        `Bundled Python runtime not found.\nExpected at:\n${pythonExe}`,
+      );
+      app.quit();
+      return;
+    }
+
+    if (!fs.existsSync(adminServer)) {
+      dialog.showErrorBox(
+        'Startup error',
+        `Django admin_server.py not found.\nExpected at:\n${adminServer}`,
+      );
+      app.quit();
+      return;
+    }
 
     djangoProcess = spawn(
       pythonExe,
@@ -28,12 +53,15 @@ function startDjango() {
       },
     );
   } else {
-    // === DEVELOPMENT: use your local Python & source tree ===
+    // -------- DEVELOPMENT: use your local Python & source tree --------
     const ROOT = path.resolve(__dirname, '..', '..');
     const python =
       process.env.DJANGO_PYTHON ||
       process.env.PYTHON ||
-      'python3'; // on mac
+      (process.platform === 'win32' ? 'python' : 'python3');
+
+    console.log('[main] DEV ROOT =', ROOT);
+    console.log('[main] DEV python =', python);
 
     djangoProcess = spawn(
       python,
