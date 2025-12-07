@@ -20,5 +20,21 @@ nsis:
   allowToChangeInstallationDirectory: false
   deleteAppDataOnUninstall: false
 
-# IMPORTANT: disable auto-publishing from electron-builder for this stage
+extraResources:
+  # Bundle the Django project
+  - from: ../../
+    to: gci-backend
+    filter:
+      - "app/**"
+      - "config/**"
+      - "database/**"
+      - "desktop_admin/**"
+      - "manage.py"
+      - "pyproject.toml"
+      - "poetry.lock"
+
+  # Bundle the Python virtualenv in CI
+  - from: python-win
+    to: python
+
 publish: null

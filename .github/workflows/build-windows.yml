@@ -20,7 +20,28 @@ jobs:
         with:
           node-version: "18"
 
-      - name: Install Dependencies
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Create Python venv for Django
+        working-directory: desktop_admin/electron
+        shell: pwsh
+        run: |
+          python -m venv python-win
+          python-win\Scripts\python -m pip install --upgrade pip
+          python-win\Scripts\pip install `
+            "django>=5.2.8,<6.0.0" `
+            "python-dotenv>=1.2.1,<2.0.0" `
+            "djangorestframework>=3.16.1,<4.0.0" `
+            "psycopg2-binary>=2.9.11,<3.0.0" `
+            "requests>=2.32.5,<3.0.0" `
+            "dj-database-url>=3.0.1,<4.0.0" `
+            "psycopg>=3.2.12,<4.0.0" `
+            "pillow>=12.0.0,<13.0.0"
+
+      - name: Install Node dependencies
         working-directory: desktop_admin/electron
         run: npm install
 
@@ -34,11 +55,3 @@ jobs:
           name: GCI-Admin-Windows-Installer
           path: desktop_admin/electron/dist/*.exe
           if-no-files-found: error
-
-      - name: Release on GitHub
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: desktop_admin/electron/dist/*.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

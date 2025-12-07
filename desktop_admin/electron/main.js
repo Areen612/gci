@@ -4,17 +4,46 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const DJANGO_PORT = process.env.DJANGO_PORT || '8765';
-
 let djangoProcess;
 
 function startDjango() {
-  const python = process.env.DJANGO_PYTHON || process.env.PYTHON || 'python3';
-  const env = { ...process.env, DJANGO_SETTINGS_MODULE: 'config.settings' };
+  const env = {
+    ...process.env,
+    DJANGO_SETTINGS_MODULE: 'config.settings',
+  };
 
-  djangoProcess = spawn(python, ['-m', 'desktop_admin.admin_server', '--port', DJANGO_PORT], {
-    cwd: ROOT,
-    env,
-  });
+  if (app.isPackaged) {
+    // === PRODUCTION: use bundled Python virtualenv ===
+    const resourcesPath = process.resourcesPath;
+    const backendPath = path.join(resourcesPath, 'gci-backend');
+    const pythonExe = path.join(resourcesPath, 'python', 'Scripts', 'python.exe');
+    const adminServer = path.join(backendPath, 'desktop_admin', 'admin_server.py');
+
+    djangoProcess = spawn(
+      pythonExe,
+      [adminServer, '--port', DJANGO_PORT],
+      {
+        cwd: backendPath,
+        env,
+      },
+    );
+  } else {
+    // === DEVELOPMENT: use your local Python & source tree ===
+    const ROOT = path.resolve(__dirname, '..', '..');
+    const python =
+      process.env.DJANGO_PYTHON ||
+      process.env.PYTHON ||
+      'python3'; // on mac
+
+    djangoProcess = spawn(
+      python,
+      ['-m', 'desktop_admin.admin_server', '--port', DJANGO_PORT],
+      {
+        cwd: ROOT,
+        env,
+      },
+    );
+  }
 
   djangoProcess.stdout.on('data', (data) => {
     console.log(`[django] ${data}`.trim());
@@ -26,7 +55,10 @@ function startDjango() {
 
   djangoProcess.on('exit', (code) => {
     if (!app.isQuitting) {
-      dialog.showErrorBox('Django stopped', `The Django server exited with code ${code ?? 'unknown'}.`);
+      dialog.showErrorBox(
+        'Django stopped',
+        `The Django server exited with code ${code ?? 'unknown'}.`,
+      );
       app.quit();
     }
   });
