@@ -19,6 +19,10 @@ nsis:
   perMachine: false
   allowToChangeInstallationDirectory: false
   deleteAppDataOnUninstall: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  # DISABLE BLOCKMAP → speeds up build massively
+  differentialPackage: false   
 
 extraResources:
   # Bundle only the backend bits needed at runtime
@@ -38,3 +42,4 @@ extraResources:
     to: python
 
 publish: null
+generateUpdatesFilesForAllChannels: false

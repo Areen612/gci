@@ -12,26 +12,39 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      # ------------------------- CHECKOUT -------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # ------------------------- NODE SETUP -------------------------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "18"
 
+      # ------------------------- PYTHON SETUP -------------------------
       - name: Setup Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
+      # ------- Cache pip downloads to speed up future builds -------
+      - name: Cache pip packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            pip-
+
+      # ------------------------- CREATE PYTHON VENV -------------------------
       - name: Create Python venv for Django
         working-directory: desktop_admin/electron
         shell: pwsh
         run: |
           python -m venv python-win
           python-win\Scripts\python -m pip install --upgrade pip
-          python-win\Scripts\pip install `
+          python-win\Scripts\pip install --no-build-isolation `
             "django>=5.2.8,<6.0.0" `
             "python-dotenv>=1.2.1,<2.0.0" `
             "djangorestframework>=3.16.1,<4.0.0" `
@@ -41,16 +54,19 @@ jobs:
             "psycopg>=3.2.12,<4.0.0" `
             "pillow>=12.0.0,<13.0.0"
 
+      # ------------------------- INSTALL NODE DEPS -------------------------
       - name: Install Node dependencies
         working-directory: desktop_admin/electron
         run: npm ci
 
+      # ------------------------- BUILD ELECTRON APP -------------------------
       - name: Build Windows Installer
         working-directory: desktop_admin/electron
         env:
-          NODE_OPTIONS: --max-old-space-size=8192
-        run: npm run dist
+          NODE_OPTIONS: --max-old-space-size=12288
+        run: npm run dist -- --publish=never
 
+      # ------------------------- UPLOAD ARTIFACT -------------------------
       - name: Upload Artifact (Installer)
         uses: actions/upload-artifact@v4
         with:
