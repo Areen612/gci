@@ -10,12 +10,13 @@ from pathlib import Path
 
 import django
 from django.core.management import call_command
+import appdirs
 
 ROOT = Path(__file__).resolve().parent.parent
-DB_PATH = ROOT / "desktop_app" / "database" / "db.sqlite3"
-LOG_DIR = ROOT / "logs"
-LOG_FILE = LOG_DIR / "desktop_admin.log"
+DB_PATH = ROOT / "database" / "db.sqlite3"
 
+LOG_DIR = Path(appdirs.user_log_dir("GCI-Admin", "GCI"))
+LOG_FILE = LOG_DIR / "desktop_admin.log"
 
 def ensure_database_path() -> None:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -95,12 +96,12 @@ def main(argv: list[str] | None = None) -> None:
           flush=True,
         )
         run_server(args.port)
-    except Exception:
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print("FATAL:", str(e), file=sys.stderr, flush=True)
         logging.exception("Fatal error while starting Django admin server.")
-        # Make sure something visible goes to Electron stderr as well
-        print("Fatal error in admin_server.py, see log file for details.", file=sys.stderr, flush=True)
         raise
-
 
 if __name__ == "__main__":
     main()
