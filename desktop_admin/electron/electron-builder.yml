@@ -28,14 +28,15 @@ extraResources:
   # Bundle only the backend bits needed at runtime
   - from: ../../
     to: gci-backend
-    filter:
-      - "app/**"
-      - "config/**"
-      - "database/db.sqlite3"
-      - "desktop_admin/**"
-      - "static/**"
-      - "templates/**"
-      - "manage.py"
+    filter: |
+      app/**
+      config/**
+      database/db.sqlite3
+      desktop_admin/**
+      !desktop_admin/electron/**
+      static/**
+      templates/**
+      manage.py
 
   # Bundle the Python virtualenv created in CI
   - from: python-win
