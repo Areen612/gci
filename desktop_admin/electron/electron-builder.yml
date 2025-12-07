@@ -21,19 +21,19 @@ nsis:
   deleteAppDataOnUninstall: false
 
 extraResources:
-  # Bundle the Django project
+  # Bundle only the backend bits needed at runtime
   - from: ../../
     to: gci-backend
     filter:
       - "app/**"
       - "config/**"
-      - "database/**"
+      - "database/db.sqlite3"
       - "desktop_admin/**"
+      - "static/**"
+      - "templates/**"
       - "manage.py"
-      - "pyproject.toml"
-      - "poetry.lock"
 
-  # Bundle the Python virtualenv in CI
+  # Bundle the Python virtualenv created in CI
   - from: python-win
     to: python
 

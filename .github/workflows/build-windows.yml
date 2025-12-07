@@ -43,10 +43,12 @@ jobs:
 
       - name: Install Node dependencies
         working-directory: desktop_admin/electron
-        run: npm install
+        run: npm ci
 
       - name: Build Windows Installer
         working-directory: desktop_admin/electron
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
         run: npm run dist
 
       - name: Upload Artifact (Installer)
