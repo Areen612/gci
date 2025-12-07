@@ -21,22 +21,24 @@ jobs:
           node-version: "18"
 
       - name: Install Dependencies
+        working-directory: desktop_admin/electron
         run: npm install
 
       - name: Build Windows Installer
+        working-directory: desktop_admin/electron
         run: npm run dist
 
       - name: Upload Artifact (Installer)
         uses: actions/upload-artifact@v4
         with:
           name: GCI-Admin-Windows-Installer
-          path: dist/*.exe
+          path: desktop_admin/electron/dist/*.exe
           if-no-files-found: error
 
       - name: Release on GitHub
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/*.exe
+          files: desktop_admin/electron/dist/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
