@@ -43,7 +43,10 @@ extraResources:
   # desktop_admin (includes admin_server.py)
   - from: ../../desktop_admin
     to: gci-backend/desktop_admin
-
+    filter:
+      - "admin_server.py"
+      - "__init__.py"
+      
   # static files
   - from: ../../static
     to: gci-backend/static
