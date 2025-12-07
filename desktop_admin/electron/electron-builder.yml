@@ -20,7 +20,5 @@ nsis:
   allowToChangeInstallationDirectory: false
   deleteAppDataOnUninstall: false
 
-publish:
-  provider: github
-  owner: Areen612
-  repo: gci
+# IMPORTANT: disable auto-publishing from electron-builder
+publish: "never"
