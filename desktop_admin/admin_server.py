@@ -12,13 +12,17 @@ import django
 from django.core.management import call_command
 import appdirs
 
-ROOT = Path(__file__).resolve().parent.parent
-DB_PATH = ROOT / "database" / "db.sqlite3"
+APPDATA_DIR = Path(appdirs.user_data_dir("GCI-Admin", "GCI"))
+BACKEND_ROOT = APPDATA_DIR / "backend"
+
+ROOT = BACKEND_ROOT
+DB_PATH = BACKEND_ROOT / "database" / "db.sqlite3"
 
 LOG_DIR = Path(appdirs.user_log_dir("GCI-Admin", "GCI"))
 LOG_FILE = LOG_DIR / "desktop_admin.log"
 
 def ensure_database_path() -> None:
+    BACKEND_ROOT.mkdir(parents=True, exist_ok=True)
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 
@@ -51,7 +55,7 @@ def setup_logging() -> None:
 
 def bootstrap_django() -> None:
     logging.info("Bootstrapping Django. ROOT=%s", ROOT)
-    sys.path.insert(0, str(ROOT))
+    sys.path.insert(0, str(BACKEND_ROOT))
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
     ensure_database_path()
     logging.info("Ensured database path exists: %s", DB_PATH)
