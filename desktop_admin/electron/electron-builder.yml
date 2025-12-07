@@ -25,20 +25,38 @@ nsis:
   differentialPackage: false   
 
 extraResources:
-  # Bundle only the backend bits needed at runtime
-  - from: ../../
-    to: gci-backend
-    filter: |
-      app/**
-      config/**
-      database/db.sqlite3
-      desktop_admin/**
-      !desktop_admin/electron/**
-      static/**
-      templates/**
-      manage.py
 
-  # Bundle the Python virtualenv created in CI
+  # app package
+  - from: ../../app
+    to: gci-backend/app
+
+  # project config (settings, urls, wsgi, etc.)
+  - from: ../../config
+    to: gci-backend/config
+
+  # sqlite database
+  - from: ../../database
+    to: gci-backend/database
+    filter: |
+      db.sqlite3
+
+  # desktop_admin (includes admin_server.py)
+  - from: ../../desktop_admin
+    to: gci-backend/desktop_admin
+
+  # static files
+  - from: ../../static
+    to: gci-backend/static
+
+  # templates
+  - from: ../../templates
+    to: gci-backend/templates
+
+  # manage.py
+  - from: ../../manage.py
+    to: gci-backend/manage.py
+
+  # ---- Bundled Python virtualenv created in CI ----
   - from: python-win
     to: python
 
