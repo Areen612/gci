@@ -55,16 +55,22 @@ jobs:
             "pillow>=12.0.0,<13.0.0" `
             "appdirs>=1.4.4,<2.0.0"
 
-          # Bundle the base interpreter DLLs into the venv so it is portable
+          # Bundle the full Python runtime into the venv so it is portable
           $pythonHome = (python-win\Scripts\python -c "import sys;from pathlib import Path;print(Path(sys.base_prefix).resolve())").Trim()
-          Write-Host "Copying Python runtime DLLs from $pythonHome"
+          Write-Host "Copying Python runtime from $pythonHome"
+
+          # Copy the main interpreter
+          Copy-Item -Path "$pythonHome\python.exe" -Destination "python-win\Scripts" -Force
+          Copy-Item -Path "$pythonHome\python.exe" -Destination "python-win" -Force
+
+          # Copy DLLs
           Get-ChildItem -Path "$pythonHome" -Filter "python*.dll" | ForEach-Object {
-            Copy-Item -Path $_.FullName -Destination "python-win\Scripts" -Force
-            Copy-Item -Path $_.FullName -Destination "python-win" -Force
+              Copy-Item -Path $_.FullName -Destination "python-win\Scripts" -Force
+              Copy-Item -Path $_.FullName -Destination "python-win" -Force
           }
           Get-ChildItem -Path "$pythonHome" -Filter "vcruntime*.dll" | ForEach-Object {
-            Copy-Item -Path $_.FullName -Destination "python-win\Scripts" -Force
-            Copy-Item -Path $_.FullName -Destination "python-win" -Force
+              Copy-Item -Path $_.FullName -Destination "python-win\Scripts" -Force
+              Copy-Item -Path $_.FullName -Destination "python-win" -Force
           }
 
       # ------------------------- INSTALL NODE DEPS -------------------------
