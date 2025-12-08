@@ -60,6 +60,33 @@ function recordOutput(buffer, target) {
   });
 }
 
+function copyDirectory(src, dest) {
+  if (fs.existsSync(dest)) {
+    return;
+  }
+  fs.cpSync(src, dest, { recursive: true });
+}
+
+function patchPyVenvCfg(pythonDir) {
+  const cfgPath = path.join(pythonDir, 'pyvenv.cfg');
+  if (!fs.existsSync(cfgPath)) {
+    console.warn("No pyvenv.cfg found to patch:", cfgPath);
+    return;
+  }
+
+  const home = pythonDir.replace(/\\/g, '\\\\');
+  const exe = path.join(pythonDir, 'Scripts', 'python.exe').replace(/\\/g, '\\\\');
+
+  const content = [
+    `home = ${home}`,
+    `executable = ${exe}`,
+    `command = ${exe} -m venv "${pythonDir}"`
+  ].join('\n');
+
+  fs.writeFileSync(cfgPath, content, 'utf8');
+  console.log("Patched pyvenv.cfg:", cfgPath);
+}
+
 function startDjango() {
   const { dataDir, logDir } = resolvePaths();
   logDirHint = logDir;
@@ -76,9 +103,23 @@ function startDjango() {
     // -------- PRODUCTION: bundled Python & backend inside resources --------
     const resourcesPath = process.resourcesPath;
     const backendPath = path.join(resourcesPath, 'gci-backend');
+    const bundledPythonDir = path.join(resourcesPath, 'python');
+    const portablePythonDir = path.join(dataDir, 'python');
+
+    try {
+      copyDirectory(bundledPythonDir, portablePythonDir);
+      patchPyVenvCfg(portablePythonDir);
+    } catch (error) {
+      dialog.showErrorBox(
+        'Startup error',
+        `Failed to prepare bundled Python runtime.\n${error.message}`,
+      );
+      app.quit();
+      return;
+    }
 
     // This is where the venv is copied by extraResources (python-win -> python)
-    const pythonExe = path.join(resourcesPath, 'python', 'Scripts', 'python.exe');
+    const pythonExe = path.join(portablePythonDir, 'Scripts', 'python.exe');
     const adminServer = path.join(backendPath, 'desktop_admin', 'admin_server.py');
 
     console.log('[main] resourcesPath =', resourcesPath);
@@ -141,6 +182,15 @@ function startDjango() {
   djangoProcess.stderr.on('data', (data) => {
     recordOutput(data, recentStderr);
     console.error(`[django error] ${data}`.trim());
+  });
+
+  djangoProcess.on('error', (err) => {
+    const logHint = logFileHint ? `\nLog file: ${logFileHint}` : '';
+    dialog.showErrorBox(
+      'Django failed to start',
+      `Failed to launch Python: ${err.message}.${logHint}`,
+    );
+    app.quit();
   });
 
   djangoProcess.on('exit', (code) => {
