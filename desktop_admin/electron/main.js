@@ -4,12 +4,72 @@ const path = require('path');
 const fs = require('fs');
 
 const DJANGO_PORT = process.env.DJANGO_PORT || '8765';
+const OUTPUT_TAIL_LIMIT = 80;
 let djangoProcess;
+let logDirHint;
+let logFileHint;
+const recentStdout = [];
+const recentStderr = [];
+
+function resolvePaths() {
+  const home = app.getPath('home');
+
+  if (process.platform === 'win32') {
+    const base =
+      process.env.LOCALAPPDATA ||
+      path.join(process.env.USERPROFILE || home, 'AppData', 'Local');
+    const dataDir = path.join(base, 'GCI', 'GCI-Admin');
+    return {
+      dataDir,
+      logDir: path.join(dataDir, 'Logs'),
+    };
+  }
+
+  if (process.platform === 'darwin') {
+    const dataDir = path.join(
+      home,
+      'Library',
+      'Application Support',
+      'GCI-Admin',
+    );
+    return {
+      dataDir,
+      logDir: path.join(home, 'Library', 'Logs', 'GCI-Admin'),
+    };
+  }
+
+  const dataDir = path.join(home, '.local', 'share', 'GCI-Admin');
+  return {
+    dataDir,
+    logDir: path.join(home, '.cache', 'GCI-Admin', 'log'),
+  };
+}
+
+function recordOutput(buffer, target) {
+  const lines = buffer
+    .toString()
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  lines.forEach((line) => {
+    target.push(line);
+    if (target.length > OUTPUT_TAIL_LIMIT) {
+      target.shift();
+    }
+  });
+}
 
 function startDjango() {
+  const { dataDir, logDir } = resolvePaths();
+  logDirHint = logDir;
+  logFileHint = logDir ? path.join(logDir, 'desktop_admin.log') : undefined;
+
   const env = {
     ...process.env,
     DJANGO_SETTINGS_MODULE: 'config.settings',
+    GCI_DATA_DIR: dataDir,
+    DJANGO_LOG_DIR: logDir,
   };
 
   if (app.isPackaged) {
@@ -74,18 +134,27 @@ function startDjango() {
   }
 
   djangoProcess.stdout.on('data', (data) => {
+    recordOutput(data, recentStdout);
     console.log(`[django] ${data}`.trim());
   });
 
   djangoProcess.stderr.on('data', (data) => {
+    recordOutput(data, recentStderr);
     console.error(`[django error] ${data}`.trim());
   });
 
   djangoProcess.on('exit', (code) => {
     if (!app.isQuitting) {
+      const recentOutput =
+        recentStderr.slice(-12).join('\n') ||
+        recentStdout.slice(-12).join('\n');
+      const logHint = logFileHint ? `\nLog file: ${logFileHint}` : '';
+      const tailHint = recentOutput
+        ? `\n\nRecent output:\n${recentOutput}`
+        : '';
       dialog.showErrorBox(
         'Django stopped',
-        `The Django server exited with code ${code ?? 'unknown'}.`,
+        `The Django server exited with code ${code ?? 'unknown'}.${logHint}${tailHint}`,
       );
       app.quit();
     }

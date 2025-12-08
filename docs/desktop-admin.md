@@ -43,3 +43,9 @@ npm run start:windows --prefix desktop_admin/electron
 ```
 
 When you quit the Electron window, the embedded Django server will be stopped automatically.
+
+## Logs and troubleshooting
+
+- Django server logs are written to `%LOCALAPPDATA%/GCI/GCI-Admin/Logs/desktop_admin.log` on Windows, `~/Library/Logs/GCI-Admin/desktop_admin.log` on macOS, and `~/.cache/GCI-Admin/log/desktop_admin.log` on Linux.
+- The Electron window now shows the exit code plus the last few log lines if Django stops unexpectedly.
+- Override the log or data root if needed by setting `DJANGO_LOG_DIR` or `GCI_DATA_DIR` before running `npm start`/`npm run start:windows`.
