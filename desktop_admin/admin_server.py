@@ -5,6 +5,7 @@ import argparse
 import logging
 import os
 import sys
+import shutil
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
@@ -12,11 +13,14 @@ import django
 from django.core.management import call_command
 import appdirs
 
+PACKAGED_ROOT = Path(__file__).resolve().parent.parent
+
 APPDATA_DIR = Path(appdirs.user_data_dir("GCI-Admin", "GCI"))
 BACKEND_ROOT = APPDATA_DIR / "backend"
 
 ROOT = BACKEND_ROOT
 DB_PATH = BACKEND_ROOT / "database" / "db.sqlite3"
+PACKAGED_DB_PATH = PACKAGED_ROOT / "database" / "db.sqlite3"
 
 LOG_DIR = Path(appdirs.user_log_dir("GCI-Admin", "GCI"))
 LOG_FILE = LOG_DIR / "desktop_admin.log"
@@ -24,6 +28,26 @@ LOG_FILE = LOG_DIR / "desktop_admin.log"
 def ensure_database_path() -> None:
     BACKEND_ROOT.mkdir(parents=True, exist_ok=True)
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    if PACKAGED_DB_PATH.exists() and not DB_PATH.exists():
+        shutil.copy2(PACKAGED_DB_PATH, DB_PATH)
+        logging.info("Copied initial database from %s to %s", PACKAGED_DB_PATH, DB_PATH)
+
+
+# Copy backend tree from packaged location to AppData backend on first run
+def ensure_backend_tree() -> None:
+    """Ensure backend code is available under BACKEND_ROOT.
+
+    On first run, copy the packaged backend tree (app, config, desktop_admin,
+    static, templates) from PACKAGED_ROOT into BACKEND_ROOT. Subsequent runs
+    will reuse the AppData copy to avoid modifying files under resources/.
+    """
+    BACKEND_ROOT.mkdir(parents=True, exist_ok=True)
+    for name in ("app", "config", "desktop_admin", "static", "templates"):
+        src = PACKAGED_ROOT / name
+        dst = BACKEND_ROOT / name
+        if src.exists() and not dst.exists():
+            shutil.copytree(src, dst)
+            logging.info("Copied backend folder %s -> %s", src, dst)
 
 
 def setup_logging() -> None:
@@ -57,6 +81,7 @@ def bootstrap_django() -> None:
     logging.info("Bootstrapping Django. ROOT=%s", ROOT)
     sys.path.insert(0, str(BACKEND_ROOT))
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+    ensure_backend_tree()
     ensure_database_path()
     logging.info("Ensured database path exists: %s", DB_PATH)
     django.setup()
